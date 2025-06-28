@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Bulk Messenger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --whatsapp-green: #25D366;
+            --whatsapp-dark: #075E54;
+            --whatsapp-light: #DCF8C6;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Helvetica, sans-serif;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            color: var(--whatsapp-dark);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .logo i {
+            color: var(--whatsapp-green);
+        }
+        
+        .btn-whatsapp {
+            background-color: var(--whatsapp-green);
+            color: white;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-whatsapp:hover {
+            background-color: var(--whatsapp-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--whatsapp-green);
+            box-shadow: 0 0 0 0.25rem rgba(37, 211, 102, 0.25);
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background-color: var(--whatsapp-green);
+        }
+        
+        .status-box {
+            background-color: var(--whatsapp-light);
+            border-left: 4px solid var(--whatsapp-green);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .disclaimer {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .country-code {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .phone-number {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-left: 0;
+        }
+        
+        .number-preview {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fab fa-whatsapp"></i> WhatsApp Bulk Messenger
+            </div>
+            <p class="text-muted">Send a single message to multiple contacts at once</p>
+        </div>
+        
+        <form id="messageForm">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="countryCode" class="form-label">Country Code</label>
+                    <select class="form-select country-code" id="countryCode">
+                        <option value="1">United States (+1)</option>
+                        <option value="44">United Kingdom (+44)</option>
+                        <option value="91" selected>India (+91)</option>
+                        <option value="86">China (+86)</option>
+                        <option value="33">France (+33)</option>
+                        <option value="49">Germany (+49)</option>
+                        <option value="55">Brazil (+55)</option>
+                        <option value="81">Japan (+81)</option>
+                        <option value="7">Russia (+7)</option>
+                        <option value="61">Australia (+61)</option>
+                        <!-- Add more country codes as needed -->
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="phoneNumbers" class="form-label">Phone Numbers</label>
+                    <textarea class="form-control phone-number" id="phoneNumbers" rows="3" placeholder="Enter phone numbers without country code, separated by commas or new lines"></textarea>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="messageText" class="form-label">Your Message</label>
+                <textarea class="form-control" id="messageText" rows="5" placeholder="Type your message here..."></textarea>
+                <div class="form-text">Maximum 1000 characters</div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="delayTime" class="form-label">Delay Between Messages (seconds)</label>
+                    <input type="number" class="form-control" id="delayTime" value="5" min="1" max="60">
+                    <div class="form-text">Recommended: 5-10 seconds</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Preview Numbers</label>
+                    <div class="number-preview" id="numberPreview">
+                        Numbers will appear here...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 mb-4">
+                <button type="button" id="sendButton" class="btn btn-whatsapp">
+                    <i class="fas fa-paper-plane"></i> Send Messages
+                </button>
+            </div>
+            
+            <div class="progress" id="progressContainer" style="display: none;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+            
+            <div class="status-box" id="statusBox" style="display: none;">
+                <div class="d-flex justify-content-between">
+                    <strong id="statusText">Preparing to send messages...</strong>
+                    <span id="counter">0/0</span>
+                </div>
+                <div class="mt-2" id="currentNumberText"></div>
+            </div>
+            
+            <div class="disclaimer">
+                <h5><i class="fas fa-exclamation-triangle"></i> Important Notice:</h5>
+                <ul>
+                    <li>This tool will open WhatsApp chats in new tabs/windows</li>
+                    <li>You must manually click send for each message</li>
+                    <li>Use delays to avoid being flagged as spam</li>
+                    <li>Only message people who have consented to receive messages from you</li>
+                    <li>WhatsApp may temporarily ban accounts that send too many messages too quickly</li>
+                </ul>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countryCodeSelect = document.getElementById('countryCode');
+            const phoneNumbersTextarea = document.getElementById('phoneNumbers');
+            const messageTextarea = document.getElementById('messageText');
+            const delayInput = document.getElementById('delayTime');
+            const sendButton = document.getElementById('sendButton');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const statusBox = document.getElementById('statusBox');
+            const statusText = document.getElementById('statusText');
+            const counter = document.getElementById('counter');
+            const currentNumberText = document.getElementById('currentNumberText');
+            const numberPreview = document.getElementById('numberPreview');
+            
+            // Update number preview when inputs change
+            function updateNumberPreview() {
+                const countryCode = countryCodeSelect.value;
+                const numbersText = phoneNumbersTextarea.value;
+                
+                if (!numbersText.trim()) {
+                    numberPreview.textContent = "Numbers will appear here...";
+                    return;
+                }
+                
+                // Split by commas or new lines
+                const numbers = numbersText.split(/[\n,]+/).map(num => num.trim()).filter(num => num);
+                
+                if (numbers.length === 0) {
+                    numberPreview.textContent = "No valid numbers found";
+                    return;
+                }
+                
+                // Display first 5 numbers with country code
+                const previewNumbers = numbers.slice(0, 5).map(num => `+${countryCode} ${num}`);
+                
+                if (numbers.length > 5) {
+                    previewNumbers.push(`...and ${numbers.length - 5} more`);
+                }
+                
+                numberPreview.innerHTML = previewNumbers.join('<br>');
+            }
+            
+            countryCodeSelect.addEventListener('change', updateNumberPreview);
+            phoneNumbersTextarea.addEventListener('input', updateNumberPreview);
+            
+            // Send messages function
+            sendButton.addEventListener('click', function() {
+                const countryCode = countryCodeSelect.value;
+                const numbersText = phoneNumbersTextarea.value;
+                const message = messageTextarea.value.trim();
+                const delaySeconds = parseInt(delayInput.value);
+                
+                if (!message) {
+                    alert('Please enter a message');
+                    return;
+                }
+                
+                if (!numbersText.trim()) {
+                    alert('Please enter at least one phone number');
+                    return;
+                }
+                
+                // Split by commas or new lines and clean up
+                let numbers = numbersText.split(/[\n,]+/)
+                    .map(num => num.trim())
+                    .filter(num => num);
+                
+                if (numbers.length === 0) {
+                    alert('No valid phone numbers found');
+                    return;
+                }
+                
+                // Remove duplicates
+                numbers = [...new Set(numbers)];
+                
+                // Add country code
+                const fullNumbers = numbers.map(num => `${countryCode}${num}`);
+                
+                // Encode message for URL
+                const encodedMessage = encodeURIComponent(message);
+                
+                // UI Setup
+                sendButton.disabled = true;
+                progressContainer.style.display = 'block';
+                statusBox.style.display = 'block';
+                progressBar.style.width = '0%';
+                statusText.textContent = 'Preparing to send messages...';
+                counter.textContent = `0/${fullNumbers.length}`;
+                
+                // Process numbers one by one
+                let processed = 0;
+                const total = fullNumbers.length;
+                
+                function processNextNumber() {
+                    if (processed >= total) {
+                        // All done
+                        progressBar.style.width = '100%';
+                        statusText.textContent = 'All messages prepared for sending!';
+                        counter.textContent = `${total}/${total}`;
+                        currentNumberText.textContent = '';
+                        sendButton.disabled = false;
+                        return;
+                    }
+                    
+                    const currentNumber = fullNumbers[processed];
+                    const whatsappUrl = `https://wa.me/${currentNumber}?text=${encodedMessage}`;
+                    
+                    // Update UI
+                    const progress = Math.round((processed / total) * 100);
+                    progressBar.style.width = `${progress}%`;
+                    counter.textContent = `${processed + 1}/${total}`;
+                    currentNumberText.textContent = `Sending to: +${currentNumber}`;
+                    
+                    // Open in new tab
+                    window.open(whatsappUrl, '_blank');
+                    
+                    processed++;
+                    
+                    if (processed < total) {
+                        setTimeout(processNextNumber, delaySeconds * 1000);
+                    } else {
+                        processNextNumber(); // To trigger completion
+                    }
+                }
+                
+                // Start processing
+                setTimeout(processNextNumber, 1000);
+            });
+            
+            // Initialize preview
+            updateNumberPreview();
+        });
+    </script>
+</body>
+</html>
